@@ -1,0 +1,89 @@
+name: success_pipeline
+on: 
+    push:
+        branches: 
+          - v[0-9].[0-9]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:    
+        - 
+            name: Checkout
+            uses: actions/checkout@v4
+        -
+            name: Check commit message
+            run: |
+                名字1=$(git log -1 --pretty=%B)
+                if [[ $名字1 == *"#NORUN"* ]]; then
+                    exit 1
+                fi
+        -
+            name: Checkout code
+            uses: actions/checkout@v3
+        -
+            name: Run Trivy vulnerability scanner in repo mode
+            uses: aquasecurity/trivy-action@master
+            with:
+              scan-type: 'fs'
+              ignore-unfixed: true
+              format: 'table'
+              output: 'trivy-results.txt'
+              severity: 'CRITICAL'
+        -
+            name: Checkout
+            uses: actions/checkout@v3
+        -
+            name: Set up QEMU
+            uses: docker/setup-qemu-action@v3
+        -
+            name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v3
+        -
+            name: Login to Docker Hub
+            uses: docker/login-action@v3
+            with:
+              username: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_TOKEN }}
+        -
+            name: Build and push
+            uses: docker/build-push-action@v5
+            with:
+              context: .
+              push: true
+              tags: docker文件的名字:${{github.sha}}
+#注意在本地做：context: .
+#Digitally sign the image
+        -
+            uses: actions/checkout@v3.5.2
+            with:
+              fetch-depth: 1
+        - 
+            name: Install Cosign
+            uses: sigstore/cosign-installer@v3.1.1
+            with:
+              cosign-release: ‘你自己的cosign版本’
+        - 
+            name: Sign image with a key
+            run: |
+              cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${TAGS}"
+            env:
+              TAGS: ‘你自己的cosign版本’:${{github.sha}}
+              COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+              COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        - 
+            name: Slack Notification
+            uses: rtCamp/action-slack-notify@v2
+            env:
+              SLACK_CHANNEL: 频道
+              SLACK_MESSAGE: | 
+                Name: 姓名
+                Matriculation: 学号
+                *Email*:邮件
+                *Git*: URL
+                *Image*: URL
+              SLACK_TITLE: 标题
+              SLACK_USERNAME: DipSA 57 CICD
+              SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+              

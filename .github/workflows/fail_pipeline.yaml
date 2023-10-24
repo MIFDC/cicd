@@ -15,8 +15,8 @@ jobs:
         -
             name: Check commit message
             run: |
-                名字1=$(git log -1 --pretty=%B)
-                if [[ $名字1 == *"#NORUN"* ]]; then
+                MyCommit1=$(git log -1 --pretty=%B)
+                if [[ $MyCommit1 == *"#NORUN"* ]]; then
                     exit 1
                 fi
         -
@@ -35,17 +35,17 @@ jobs:
             name: Slack Notification
             uses: rtCamp/action-slack-notify@v2
             env:
-              SLACK_CHANNEL: 频道名
-              SLACK_MESSAGE: 传递的信息
-              SLACK_TITLE: 标题
-              SLACK_USERNAME: DipSA 57 CICD
-              SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+              SLACK_CHANNEL: mytest
+              SLACK_MESSAGE: This is my message.
+              SLACK_TITLE: cicdworkshop
+              SLACK_USERNAME: MyTest
+              SLACK_WEBHOOK: ${{ secrets.WEBHOOK_UPL }}
 #Upload scan report
         -
             name: Upload scan report
             uses: MeilCli/slack-upload-file@v3
             with:
-              slack_token: ${{ secrets.SLACK_TOKEN }}
-              channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+              slack_token: ${{ secrets.SLACK_BOT_TOKEN }}
+              channel_id: ${{ secrets.CHANNEL_ID }}
               file_path: 'trivy-results.txt'
-              initial_comment: 传递的信息
+              initial_comment: MyMessage
