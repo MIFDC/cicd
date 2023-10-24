@@ -1,8 +1,8 @@
 name: success_pipeline
 on: 
     push:
-        branches: 
-          - v[0-9].[0-9]
+        #branches: 
+          #- v[0-9].[0-9]
 
 jobs:
   build:
