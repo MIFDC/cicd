@@ -52,9 +52,7 @@ jobs:
             with:
               context: .
               push: true
-              tags: docker文件的名字:${{github.sha}}
-#注意在本地做：context: .
-#Digitally sign the image
+              tags: dingzeyu/cicdworkshop:${{github.sha}}
         -
             uses: actions/checkout@v3.5.2
             with:
@@ -63,13 +61,13 @@ jobs:
             name: Install Cosign
             uses: sigstore/cosign-installer@v3.1.1
             with:
-              cosign-release: ‘你自己的cosign版本’
+              cosign-release: ‘v2.1.1’
         - 
             name: Sign image with a key
             run: |
               cosign sign --yes --key env://COSIGN_PRIVATE_KEY "${TAGS}"
             env:
-              TAGS: ‘你自己的cosign版本’:${{github.sha}}
+              TAGS: ‘dingzeyu/cicdworkshop’:${{github.sha}}
               COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
               COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         - 
