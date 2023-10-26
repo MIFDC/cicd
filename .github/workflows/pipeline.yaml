@@ -39,7 +39,7 @@ jobs:
             uses: rtCamp/action-slack-notify@v2
             env:
               SLACK_COLOR: ${{job.status}}
-              SLACK_CHANNEL: mytest
+              SLACK_CHANNEL: submission
               SLACK_MESSAGE: This is my message.
               SLACK_TITLE: cicdworkshop
               SLACK_USERNAME: DipSA 57 CICD
@@ -97,7 +97,7 @@ jobs:
             name: Slack Notification
             uses: rtCamp/action-slack-notify@v2
             env:
-              SLACK_CHANNEL: mytest
+              SLACK_CHANNEL: submission
               SLACK_MESSAGE: | 
                 Name: Ding Zeyu
                 Matriculation: e1221840
