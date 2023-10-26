@@ -1,12 +1,13 @@
-name: success_pipeline
+name: fail_pipeline.yaml
 on: 
     push:
-        #branches: 
-          #- v[0-9].[0-9]
+        branches: 
+          - v[0-9].[0-9]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.commits[0].message,'#NORUN')}}
 
     steps:    
         - 
@@ -15,8 +16,8 @@ jobs:
         -
             name: Check commit message
             run: |
-                MyCommit2=$(git log -1 --pretty=%B)
-                if [[ $Mycommit2 == *"#NORUN"* ]]; then
+                MyCommit1=$(git log -1 --pretty=%B)
+                if [[ $MyCommit1 == *"#NORUN"* ]]; then
                     exit 1
                 fi
         -
@@ -30,7 +31,28 @@ jobs:
               ignore-unfixed: true
               format: 'table'
               output: 'trivy-results.txt'
-              severity: 'CRITICAL'
+              severity: 'HIGH'
+        - 
+            name: Slack Notification
+            if: failure()
+            uses: rtCamp/action-slack-notify@v2
+            env:
+              SLACK_COLOR: ${{job.status}}
+              SLACK_CHANNEL: mytest
+              SLACK_MESSAGE: This is my message.
+              SLACK_TITLE: cicdworkshop
+              SLACK_USERNAME: DipSA 57 CICD
+              SLACK_WEBHOOK: ${{ secrets.WEBHOOK_URL }}
+#Upload scan report
+        -
+            name: Upload scan report
+            if: failure()
+            uses: MeilCli/slack-upload-file@v3
+            with:
+              slack_token: ${{ secrets.SLACK_BOT_TOKEN }}
+              channel_id: ${{ secrets.CHANNEL_ID }}
+              file_path: 'trivy-results.txt'
+              initial_comment: MyMessage
         -
             name: Checkout
             uses: actions/checkout@v3
@@ -79,9 +101,9 @@ jobs:
                 Name: Ding Zeyu
                 Matriculation: e1221840
                 *Email*:e1221840@u.nus.edu
-                *Git*: URL
-                *Image*: URL
+                *Git*: https://github.com/${{ github.repository }}
+                *Image*: https://hub.docker.com/repository/docker/dingzeyu/cicdworkshop/
               SLACK_TITLE: cicdworkshop
-              SLACK_USERNAME: MyTest
-              SLACK_WEBHOOK: ${{ secrets.WEBHOOK_UPL }}
-              
+              SLACK_USERNAME: DipSA 57 CICD
+              SLACK_WEBHOOK: ${{ secrets.WEBHOOK_URL }}
+        
