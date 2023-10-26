@@ -32,6 +32,7 @@ jobs:
               format: 'table'
               output: 'trivy-results.txt'
               severity: 'HIGH'
+              exit-code: 1
         - 
             name: Slack Notification
             if: failure()
